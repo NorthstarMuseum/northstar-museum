@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="920" viewBox="0 0 960 920" role="img" aria-label="Original illustration for Northstar Museum">
+<defs><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".45" numOctaves="3" seed="7" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".035"/></feComponentTransfer></filter></defs>
+<defs><linearGradient id="wall" x2="0" y2="1"><stop stop-color="#dbd9cb"/><stop offset="1" stop-color="#afa896"/></linearGradient><linearGradient id="floor" x2="0" y2="1"><stop stop-color="#998e7e"/><stop offset="1" stop-color="#c2b8a6"/></linearGradient><linearGradient id="art" x2="1" y2="1"><stop stop-color="#203a45"/><stop offset="1" stop-color="#10232d"/></linearGradient></defs>
+<rect width="960" height="920" fill="url(#wall)"/>
+<path d="M20 0H940V620H20Z" fill="#dfddce"/>
+<rect x="90" y="125" width="780" height="590" rx="382" fill="#bbb5a5"/>
+<path d="M124 699V504A356 356 0 0 1 836 504V699Z" fill="#d2cbb9"/>
+<path d="M186 706V504A294 294 0 0 1 774 504V706Z" fill="#9d9688"/>
+<path d="M205 713V505A275 275 0 0 1 755 505V713Z" fill="#bdb5a2"/>
+<rect x="248" y="210" width="464" height="445" fill="#876f51"/><rect x="267" y="228" width="426" height="408" fill="#dbc8a8"/>
+<rect x="281" y="241" width="398" height="382" fill="url(#art)"/>
+<circle cx="482" cy="415" r="126" fill="#d1b38b"/><circle cx="497" cy="394" r="94" fill="#ad7767"/>
+<path d="M281 520Q420 460 495 535T679 505V623H281Z" fill="#40646c"/>
+<path d="M300 590C397 490 507 570 679 548V623H281Z" fill="#233e48"/>
+<path d="M407 272Q475 312 564 266" fill="none" stroke="#efe4c9" stroke-width="3"/>
+<rect x="0" y="713" width="960" height="207" fill="url(#floor)"/>
+<path d="M0 713H960M480 713V920M0 850L960 850M220 713L0 920M740 713L960 920" stroke="#e4d9c6" stroke-opacity=".35" stroke-width="3"/>
+<path d="M0 0H30V713H0ZM930 0H960V713H930Z" fill="#ede9da"/>
+<rect x="62" y="615" width="195" height="226" fill="#c5c0ae"/><rect x="56" y="598" width="209" height="35" fill="#e5e0d0"/>
+<path d="M125 575C85 546 95 496 126 460Q155 418 179 449Q202 471 174 505Q202 537 165 577Z" fill="#e4dccb"/>
+<ellipse cx="156" cy="453" rx="42" ry="51" fill="#ece2cf"/><path d="M135 426Q176 416 181 449" fill="none" stroke="#c9c0af" stroke-width="9"/>
+<rect x="708" y="639" width="177" height="178" fill="#cbc3b1"/><rect x="698" y="623" width="195" height="23" fill="#e2dccf"/>
+<path d="M768 622L747 585L765 547L755 527Q729 508 756 484L776 488Q798 506 792 527L782 549L817 582L801 622Z" fill="#ded5c5"/>
+<path d="M756 521Q785 535 795 526M764 549L792 565" fill="none" stroke="#bcb29e" stroke-width="6"/>
+<rect width="960" height="920" filter="url(#grain)" opacity=".4"/></svg>

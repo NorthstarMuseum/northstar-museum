@@ -1,0 +1,231 @@
+/* Northstar editorial design system. Inspired by museum information architecture,
+   designed for a working student project rather than a promotional illustration. */
+:root{
+  --pine:#172942;--deep:#122238;--cream:#fff;--white:#fff;
+  --ink:#182338;--sub:#596374;--gold:#172942;--gold-soft:#ecf0f5;
+  --line:#dde2e9;--mint:#f4f6f8;--rose:#f4f6f8;
+  --success:#275748;--danger:#9b3434;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:Inter,'Segoe UI',Arial,Helvetica,sans-serif;
+}
+html{scroll-padding-top:90px}
+body{background:#fff;color:var(--ink);font-size:15px;line-height:1.55}
+p{line-height:1.65}
+h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.025em}
+h1,h2{letter-spacing:-.045em}
+::selection{background:#d7e2f0}
+:focus-visible{outline:3px solid #2d5a94;outline-offset:3px}
+.container{width:min(1270px,calc(100% - 68px))}
+.section{padding:76px 0}
+.section.alt,.page-heading,.mystery-member-area,#museum-admin{background:#f5f7fa}
+.eyebrow,.eyebrow.light,.card-kicker,.event-time,.artifact-meta,.bread,.bread span,.info-line small{font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#667083}
+.eyebrow::before,.eyebrow.light::before{display:none}
+.highlight,.hero .highlight,.mystery-intro h1 em,.mystery-home-band h2 em,.statement-band h2 em,.secret-layout h2 em{font-style:normal;color:inherit}
+.btn{font-family:var(--sans);border-radius:2px;font-weight:600;letter-spacing:0;font-size:13px;min-height:44px;padding:11px 18px;gap:14px;transition:background .2s}
+.btn:hover{transform:none}
+.btn-primary,.hero .btn-primary,.mystery-home-band .btn-primary,.mysteries-top .btn-primary{background:var(--deep);border-color:var(--deep);color:#fff}
+.btn-primary:hover,.hero .btn-primary:hover,.mystery-home-band .btn-primary:hover,.mysteries-top .btn-primary:hover{background:#2a4163;border-color:#2a4163}
+.btn-outline{color:var(--deep);background:transparent;border-color:#79869a}
+.btn-outline:hover{background:#eff2f6}
+.btn-danger{background:#993e40;color:#fff}
+.link-arrow,.text-link{color:var(--deep);display:inline-flex;align-items:center;gap:11px;font-weight:500;font-size:13px;border-bottom:1px solid #657185;padding-bottom:3px}
+.link-arrow:hover,.text-link:hover{gap:13px}
+
+/* Header: conventional navigation, not an illustrated interface. */
+.site-header{height:70px;background:#fff;border-bottom:1px solid var(--line);box-shadow:none;position:sticky;top:0;z-index:100}
+.header-inner{min-height:70px;display:flex;align-items:center;gap:28px}
+.brand{flex-shrink:0;margin-right:clamp(24px,5vw,80px)}
+.brand-name{color:var(--deep);font:400 23px/1.05 var(--serif);letter-spacing:.19em}
+.brand-name small{display:block;font:600 9px var(--sans);letter-spacing:.39em;text-align:center;margin:4px 0 0}
+.main-nav{display:flex;gap:26px;flex:1;align-items:center}
+.main-nav a{font-size:12px;color:#293446;font-weight:500;letter-spacing:0}
+.main-nav a:not(.header-account):not(.nav-booking)::after{background:var(--deep);height:1px;bottom:-6px}
+.header-spacer{flex:1}
+.nav-search{padding-left:19px;border-left:1px solid #d3d9e1}
+.nav-search::before{content:'⌕';font:400 21px var(--serif);vertical-align:-2px;margin-right:7px}
+.auth-nav{padding-left:16px;border-left:1px solid #d3d9e1;margin:0;flex-shrink:0}
+.header-account{background:none!important;color:#293446!important;padding:0!important;min-height:auto!important;border:none!important;font-size:12px!important}
+.main-nav .nav-booking{padding:10px 16px;background:var(--deep);color:#fff;font-size:12px;min-height:38px}
+.main-nav .nav-booking:hover{background:#314761}
+.menu-toggle span{background:var(--deep)}
+
+/* Homepage: white split hero and image-led collection. */
+.editorial-hero{background:#f6f7f9;border-bottom:1px solid var(--line)}
+.editorial-hero-grid{display:grid;grid-template-columns:43% 57%;min-height:398px;align-items:stretch}
+.editorial-hero-copy{padding:64px 40px 55px 0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.editorial-hero-copy h1{font-size:clamp(44px,4.45vw,67px);line-height:1.035;margin:14px 0 18px;letter-spacing:-.05em}
+.editorial-hero-copy p{color:#586172;max-width:470px;font-size:14px;line-height:1.68;margin-bottom:22px}
+.editorial-hero-copy .button-row{gap:11px}
+.editorial-hero-photo{height:auto;min-height:398px;margin-right:calc((min(1270px,100vw - 68px) - 100vw)/2);background:#e1e4e8;overflow:hidden}
+.editorial-hero-photo img{height:100%;width:100%;object-fit:cover;object-position:center}
+.visit-information{background:#f8f9fb;border-bottom:1px solid var(--line)}
+.visit-information-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:18px 0}
+.visit-info{padding:0 32px;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;row-gap:2px;border-left:1px solid #d1d8e2}
+.visit-info:first-child{padding-left:20px}
+.visit-info strong{width:100%;font-size:12px;font-weight:650;color:#212c3c}
+.visit-info span{font:400 19px/1.25 var(--serif);color:var(--deep)}
+.visit-info a{font-size:12px;text-decoration:underline;text-underline-offset:3px;color:#465670}
+.section-top{align-items:end;margin-bottom:26px}
+.section-top h2{font-size:clamp(35px,3.4vw,48px);letter-spacing:-.04em;margin:6px 0 0}
+.section-intro{color:var(--sub);margin:12px 0 0;font-size:13px}
+.exhibition-section{padding:64px 0 66px}
+.exhibition-grid,.collection-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:23px}
+.exhibition-card{background:#fff;border:0;border-bottom:1px solid var(--line);box-shadow:none;transition:none}
+.exhibition-card:hover{transform:none;box-shadow:none}
+.exhibition-card img{height:204px;object-fit:cover;width:100%;filter:none}
+.exhibition-card:hover img{filter:none}
+.exhibition-card .card-content{padding:17px 0 13px;background:transparent}
+.card-kicker{letter-spacing:.11em;font-size:10px;color:#626d7c;margin-bottom:7px}
+.exhibition-card h3{font-size:24px;margin-bottom:8px;color:var(--deep)}
+.exhibition-card p{font-size:13px;color:#586273;line-height:1.6;margin:0;min-height:0}
+.exhibition-card .card-tail{font-size:12px;border:0;padding-top:12px;color:#253753;font-weight:500;justify-content:flex-start;gap:9px}
+.exhibition-card .card-tail span{font-size:17px}
+.exhibition-card .card-action{margin-top:4px;padding:12px 0 15px;border-top:1px solid #edf0f4;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.collection-feature{background:#f4f6f9;padding:62px 0 75px}
+.feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:23px}
+.feature-tile{display:block;background:#fff;border:1px solid #e1e6ed;overflow:hidden}
+.feature-tile img{width:100%;height:204px;object-fit:cover}
+.feature-tile>div{padding:19px 20px 24px}
+.feature-tile>div>span:first-child{font:600 10px var(--sans);letter-spacing:.13em;color:#667180}
+.feature-tile h3{font-size:26px;margin:6px 0 13px}
+.feature-link{font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.events-section{background:#fff;padding:72px 0}
+.events-list{border-color:var(--line)}
+.event-row{border-bottom-color:var(--line);gap:25px;padding:23px 0}
+.event-date{border-color:var(--line)}.event-date strong{color:var(--deep)}.event-date small{color:#687488}
+.event-row h3{font-size:23px}.event-row p{color:var(--sub)}.event-row .event-time{color:#617083}
+.event-row .round-arrow{border-radius:2px;color:var(--deep);border-color:var(--line)}
+.editorial-end{background:#f2f4f7;border-top:1px solid var(--line);padding:58px 0 72px}
+.editorial-end-grid{display:grid;grid-template-columns:1fr 1fr;gap:55px}
+.editorial-end-grid>div{padding-right:36px}
+.editorial-end-grid>div+div{border-left:1px solid #d5dce6;padding-left:55px}
+.editorial-end h2{font-size:33px;margin:16px 0}
+.editorial-end p{color:var(--sub);font-size:14px;max-width:450px}
+
+/* Inner pages share the same quiet typography and navigation hierarchy. */
+.page-heading,.mystery-intro{background:#f4f6f9;color:var(--ink);padding:56px 0 55px;border-bottom:1px solid var(--line)}
+.page-heading h1,.mystery-intro h1{font-size:clamp(42px,4.6vw,66px);letter-spacing:-.045em;margin:10px 0 16px}
+.page-heading p,.mystery-intro p{color:var(--sub);font-size:15px;max-width:680px}
+.bread{font-size:10px;color:#6d7684}
+.bread span{color:#6d7684}
+.intro-grid img,.detail-image{object-fit:cover;border:1px solid var(--line)}
+.intro-grid h2,.detail-copy h1,.contact-info h2{color:var(--deep)}
+.detail-copy .detail-intro{color:#39495c!important}
+.value-card,.account-card,.contact-panel,.form-panel,.review-form,.booking-panel,.booking-side,.artifact-toolbar,.explore-toolbar,.inline-form,.museum-artifact-form{background:#fff;border:1px solid var(--line);box-shadow:none}
+.value-card b,.museum-stat-row strong{color:#243856}
+.value-card p,.contact-info p,.detail-copy p{color:var(--sub)}
+.form-field input,.form-field textarea,.form-field select,.artifact-toolbar input,.artifact-toolbar select,.booking-panel input,.booking-panel select,.review-form select,.review-form textarea,.inline-form input,.museum-artifact-form input,.museum-artifact-form select,.museum-artifact-form textarea{
+  border:1px solid #cbd2dd;background:#fff;color:var(--ink);border-radius:2px
+}
+.form-field input:focus,.form-field textarea:focus,.form-field select:focus{border-color:#314d78;box-shadow:0 0 0 2px #e0e7f1}
+.account-summary,.admin-record,.admin-message{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.account-stats strong{color:var(--deep)}
+.like-button,.save-button,.artifact-action{border:1px solid #cdd5e0;color:var(--deep);background:#fff;border-radius:2px}
+.like-button:hover,.save-button:hover,.artifact-action:hover,.like-button.is-liked,.save-button.is-saved,.artifact-action.active{background:#e9eef6;border-color:#8196b3;color:var(--deep)}
+.like-count,.like-button.is-liked .like-count{background:#eef2f7;color:#233957}
+.event-row .like-button,.event-row .save-button{font-size:12px}
+
+/* Object and story archive: neutral frames let the artifacts carry the subject. */
+.artifact-card,.mystery-tile,.mystery-tile.revealed{background:#fff;border:1px solid var(--line);color:var(--ink);box-shadow:none}
+.artifact-card:hover{transform:none;box-shadow:0 7px 20px #17294210}
+.artifact-card-body{padding:20px}.artifact-card h3{font-size:24px}
+.artifact-card p,.mystery-tile p{color:var(--sub)}
+.artifact-meta,.mystery-tile .eyebrow{color:#687488}
+.artifact-image,.artifact-image img{background:#e8ebef}
+.image-corner{background:#fffffff0;color:#566073;border:0}
+.artifact-detail-hero{background:#fff;color:var(--ink);padding:48px 0 70px}
+.artifact-detail-photo{background:#edf0f3;box-shadow:none}
+.artifact-detail-copy h1,.artifact-detail-copy h2{color:var(--deep)}
+.artifact-lead{color:#354b64!important;font-style:normal}
+.artifact-detail-copy p,.detail-info{color:var(--sub)}
+.artifact-detail-copy .eyebrow{color:#627086}
+.detail-info{border-color:var(--line)}
+.gold-rule{background:var(--line)}
+.photo-caption{background:#192d44da;color:white;letter-spacing:.05em}
+.secret-section{background:#f4f6f9;border:1px solid var(--line);color:var(--ink)}
+.secret-layout h2,.secret-layout h2 em{color:var(--ink)}
+.secret-layout p,.unlocked-story p{color:var(--sub)}
+.secret-altar{background:#fff;border:1px solid var(--line);box-shadow:none}
+.secret-object{background:#e9edf2;color:#2f4967;border:1px solid #b8c3d2;box-shadow:none}
+.secret-object:hover{transform:scale(1.015)}
+.unlocked-story{background:#f1f4f8;border:1px solid var(--line)}
+.unlocked-story h3{color:var(--deep)}
+.mystery-tile-icon{color:#64768f}
+.mystery-home-band,.member-strip,.statement-band,.story-feature,.newsletter-strip{background:#f4f6f9;color:var(--ink)}
+.mystery-home-band p,.member-strip p{color:var(--sub)}
+
+/* Booking, member collections, moderation and stamp visuals. */
+.booking-panel,.booking-side{background:#fff;border:1px solid var(--line);padding:35px}
+.booking-side{background:#f4f6f9;color:var(--ink)}
+.booking-side .eyebrow{color:#667488}
+.booking-side p,.booking-side li,.booking-side .muted{color:#576577}
+.booking-side li{border-color:#d8dfe8}
+.slot-chip{background:#fff;color:var(--ink);border-color:#ccd4de}
+.slot-chip.selected{background:var(--deep);color:#fff;border-color:var(--deep)}
+.slot-chip:disabled{background:#f2f4f7}
+.booking-guidance{color:var(--sub)}
+.daily-stamp{background:#fff;color:var(--ink);border:3px double var(--ink);box-shadow:none;filter:none}
+.daily-stamp.earned{filter:none}
+.stamp-wordmark,.stamp-symbol,.stamp-code{color:var(--deep);text-shadow:none}
+.mystery-member-area{background:#f5f7fa}
+.museum-stat-row>div,.milestone-badge{background:#fff;border:1px solid var(--line)}
+.museum-stat-row strong{color:var(--deep)}
+.milestone-badge.earned{background:#e7eef7;border:1px solid #a6bad0;color:var(--deep)}
+.milestone-badge>span{color:#56718f}
+.museum-booking-card{background:#fff;border:1px solid var(--line)}
+.museum-table{background:#fff}
+.museum-table th{background:#e8edf4;color:#263753;font-weight:650}
+.status-pill.checked_in{background:#e3f0e9}
+.status-pill.cancelled{background:#f8e8e8}
+#museum-admin{background:#f5f7fa}
+.admin-tabs button.active{background:var(--deep);color:#fff}
+
+/* Footer is administrative/informational rather than theatrical. */
+.site-footer{background:#16263c;color:#fff;padding:55px 0 22px}
+.footer-top{padding-bottom:40px}
+.footer-brand{font:400 25px var(--serif);letter-spacing:.12em;color:#fff}
+.footer-brand span{font:500 11px var(--sans);letter-spacing:.22em;color:#cbd5e1}
+.footer-statement,.footer-top .footer-statement{font:400 30px var(--serif);color:#f0f3f9}
+.footer-top p,.footer-bottom,.site-footer a{color:#c2ccda}
+.footer-bottom{border-color:#455268}
+.footer-bottom a:hover{color:#fff}
+
+@media(max-width:1200px){.brand{margin-right:16px}.main-nav{gap:16px}.nav-search{padding-left:9px}.auth-nav{padding-left:9px}}
+@media(max-width:1030px){.main-nav{gap:12px}.main-nav a{font-size:11px}.brand-name{font-size:21px}.editorial-hero-copy h1{font-size:49px}}
+@media(max-width:800px){
+  .container{width:min(100% - 40px,1270px)}
+  .site-header,.header-inner{height:66px;min-height:66px}
+  .menu-toggle{display:block;margin-left:auto}
+  .main-nav{display:none;position:absolute;top:66px;left:0;right:0;padding:18px 24px 24px;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 14px 20px #1c2a3c1a;flex-direction:column;align-items:stretch;gap:0}
+  .main-nav.open{display:flex}
+  .main-nav a{font-size:14px;padding:10px 0;color:var(--ink)}
+  .header-spacer{display:none}
+  .nav-search,.auth-nav{border:0;padding-left:0}
+  .nav-booking{margin-top:8px;text-align:center;justify-content:center}
+  .editorial-hero-grid{grid-template-columns:1fr}
+  .editorial-hero-copy{padding:48px 0 37px}
+  .editorial-hero-copy h1{font-size:clamp(43px,7vw,58px)}
+  .editorial-hero-photo{margin:0 -20px;min-height:330px;height:350px}
+  .visit-information-grid{grid-template-columns:1fr;gap:0;padding:10px 0}
+  .visit-info{padding:12px 0 12px 15px!important;border-left:2px solid #d2dbe6;border-bottom:1px solid var(--line)}
+  .exhibition-grid,.collection-grid,.feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .editorial-end-grid{grid-template-columns:1fr;gap:20px}
+  .editorial-end-grid>div+div{padding:25px 0 0;border-left:0;border-top:1px solid var(--line)}
+  .footer-statement,.footer-top .footer-statement{font-size:24px}
+}
+@media(max-width:560px){
+  .section{padding:50px 0}.editorial-hero-copy{padding:40px 0 36px}
+  .editorial-hero-copy h1{font-size:43px}.editorial-hero-photo{height:260px;min-height:260px}
+  .exhibition-grid,.collection-grid,.feature-grid,.artifact-grid,.artifact-grid.compact,.mystery-grid{grid-template-columns:1fr}
+  .exhibition-card img,.feature-tile img{height:230px}
+  .section-top{align-items:start;gap:15px}
+  .section-top h2{font-size:37px}
+  .booking-layout,.artifact-detail-grid{grid-template-columns:1fr}
+  .booking-panel,.booking-side,.contact-panel,.form-panel{padding:23px}
+  .booking-form-grid{grid-template-columns:1fr}
+  .slot-grid{grid-template-columns:repeat(2,1fr)}
+  .museum-stat-row{grid-template-columns:repeat(2,1fr)}
+  .badges-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-top{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}

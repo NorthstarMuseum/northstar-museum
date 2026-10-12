@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Original illustration for Northstar Museum">
+<defs><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".45" numOctaves="3" seed="7" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".035"/></feComponentTransfer></filter></defs>
+<rect width="120" height="120" rx="22" fill="#183d47"/><path d="M60 16L68 50L104 60L68 69L60 105L51 69L16 60L51 50Z" fill="#d9ae68"/><circle cx="60" cy="60" r="12" fill="#183d47"/><rect width="120" height="120" filter="url(#grain)" opacity=".4"/></svg>

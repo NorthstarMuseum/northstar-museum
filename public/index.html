@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="northstar museum — the museum of hidden stories, impossible objects, and secret discoveries. A fictional student museum project.">
+  <link rel="icon" href="/assets/star.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/editorial.css">
+  <title>Northstar Museum — Stories in Every Object</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  
+  <header class="site-header" id="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" data-link aria-label="Northstar Museum home"><span class="brand-name">NORTHSTAR<small>MUSEUM</small></span></a>
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Open navigation"><span></span><span></span><span></span></button>
+      <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+        <a href="/visit" data-link data-nav="/visit">Visit</a>
+        <a href="/exhibitions" data-link data-nav="/exhibitions">What's on</a>
+        <a href="/collection" data-link data-nav="/collection">Collection</a>
+        <a href="/mysteries" data-link data-nav="/mysteries">Stories</a>
+        <a href="/events" data-link data-nav="/events">Events</a>
+        <a href="/about" data-link data-nav="/about">About</a>
+        <span class="header-spacer" aria-hidden="true"></span>
+        <a class="nav-search" href="/collection" data-link aria-label="Search the collection">Search</a>
+        <span id="auth-nav" class="auth-nav"><a class="header-account" href="/login" data-link>Log in</a></span>
+        <a class="btn btn-primary nav-booking" data-link href="/visit">Book a visit</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"><div class="loading-screen container">Opening Northstar…</div></main>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top"><div><a href="/" data-link class="footer-brand">NORTHSTAR <span>MUSEUM</span></a><p>Art, history, people and the stories they leave behind.</p></div><p class="footer-statement">Look closer. Discover more.</p></div>
+      <div class="footer-bottom"><span>© <span id="year"></span> Northstar Museum · Fictional college project</span><nav aria-label="Footer navigation"><a data-link href="/collection">Artifacts</a><a data-link href="/mysteries">Mysteries</a><a data-link href="/visit">Visit</a><a data-link href="/about">About</a><a data-link href="/exhibitions">Exhibitions</a><a data-link href="/events">Events</a><a data-link href="/contact">Contact</a><a data-link href="/privacy">Privacy</a></nav></div>
+    </div>
+  </footer>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
