@@ -78,6 +78,6 @@ npm test
 
 We used HTML, CSS and JavaScript for the website, Node.js for the server and SQLite for saving data. The database is created on your computer when you start the project.
 
-The `docs` folder has our project plans, database design, API information and testing notes.
+The docs folder has our project plans, database design, API information and testing notes.
 
 Northstar is a fictional project. The museum, objects and stories were made for this website.
