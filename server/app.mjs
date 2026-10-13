@@ -1,3 +1,4 @@
+import { handleFeatureApi, logAdmin } from './features.mjs';
 import { handleMuseumApi } from './museum.mjs';
 import { createServer as makeHttpServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -70,6 +71,7 @@ function limiter(max, windowMs) {
 }
 const limitAuth = limiter(20, 15 * 60000);
 const limitContact = limiter(6, 15 * 60000);
+const limitAccountAction = limiter(12, 15 * 60000);
 const publicUser = user => ({ id: user.id, name: user.name, email: user.email, role: user.role });
 
 function uniqueSlug(db, title) {
@@ -82,7 +84,8 @@ function uniqueSlug(db, title) {
 async function handleApi(req, res, url, db) {
   const path = url.pathname;
   const method = req.method;
-  if (await handleMuseumApi({db,req,res,url,method,parseJson,requireLogin,requireAdmin,sendJson,HttpError})) return;
+  if (await handleFeatureApi({db,req,res,url,method,parseJson,requireLogin,requireAdmin,sendJson,clearSessionCookie,isSecure,HttpError,limitAccountAction})) return;
+  if (await handleMuseumApi({db,req,res,url,method,parseJson,requireLogin,requireAdmin,sendJson,HttpError,logAdmin})) return;
   if (method === 'GET' && path === '/api/health') return sendJson(res, 200, { status:'ok' });
   if (method === 'GET' && path === '/api/exhibitions') {
     const rows = db.prepare(`SELECT e.*, (SELECT COUNT(*) FROM liked_exhibitions l WHERE l.exhibition_id=e.id) AS like_count FROM exhibitions e WHERE published=1 ORDER BY featured DESC,id ASC`).all();
@@ -219,12 +222,14 @@ async function handleApi(req, res, url, db) {
       if (method === 'POST' && path === '/api/admin/exhibitions') {
         const slug = uniqueSlug(db,data.title);
         const info = db.prepare('INSERT INTO exhibitions(title,category,description,body,image_key,featured,published,slug) VALUES(?,?,?,?,?,?,?,?)').run(...fields,slug);
+        logAdmin(db,requireAdmin(db,req).id,'create_exhibition','exhibition',Number(info.lastInsertRowid));
         return sendJson(res,201,{exhibition:asExhibition(db.prepare('SELECT * FROM exhibitions WHERE id=?').get(info.lastInsertRowid))});
       }
       if (method === 'PUT') {
         const id = Number(path.split('/')[4]);
         const info = db.prepare('UPDATE exhibitions SET title=?,category=?,description=?,body=?,image_key=?,featured=?,published=? WHERE id=?').run(...fields,id);
         if (!info.changes) throw new HttpError(404,'Exhibition not found.');
+        logAdmin(db,requireAdmin(db,req).id,'update_exhibition','exhibition',id);
         return sendJson(res,200,{exhibition:asExhibition(db.prepare('SELECT * FROM exhibitions WHERE id=?').get(id))});
       }
     }
@@ -235,12 +240,14 @@ async function handleApi(req, res, url, db) {
       const fields = [cleanText(data.title,110),cleanText(data.description,280),data.date,data.time,Number(data.published)];
       if (method === 'POST' && path === '/api/admin/events') {
         const info = db.prepare('INSERT INTO events(title,description,event_date,event_time,published) VALUES (?,?,?,?,?)').run(...fields);
+        logAdmin(db,requireAdmin(db,req).id,'create_event','event',Number(info.lastInsertRowid));
         return sendJson(res,201,{event:asEvent(db.prepare('SELECT * FROM events WHERE id=?').get(info.lastInsertRowid))});
       }
       if (method === 'PUT') {
         const id = Number(path.split('/')[4]);
         const info = db.prepare('UPDATE events SET title=?,description=?,event_date=?,event_time=?,published=? WHERE id=?').run(...fields,id);
         if (!info.changes) throw new HttpError(404,'Event not found.');
+        logAdmin(db,requireAdmin(db,req).id,'update_event','event',id);
         return sendJson(res,200,{event:asEvent(db.prepare('SELECT * FROM events WHERE id=?').get(id))});
       }
     }
@@ -249,6 +256,7 @@ async function handleApi(req, res, url, db) {
       const id = Number(strId);
       const info = db.prepare(`DELETE FROM ${table} WHERE id=?`).run(id); // table restricted by route regex
       if (!info.changes) throw new HttpError(404,'Record not found.');
+      logAdmin(db,requireAdmin(db,req).id,'delete_'+table,table,id);
       res.writeHead(204,{'Cache-Control':'no-store'}); res.end(); return;
     }
   }
@@ -258,7 +266,7 @@ async function handleApi(req, res, url, db) {
 async function handleStatic(req, res, url) {
   if (req.method !== 'GET' && req.method !== 'HEAD') throw new HttpError(405,'Method not allowed.');
   const path = decodeURIComponent(url.pathname);
-  const staticPath = path === '/favicon.svg' || path.startsWith('/assets/') || path === '/styles.css' || path === '/editorial.css' || path === '/app.js' || path === '/museum-ui.js';
+  const staticPath = path === '/favicon.svg' || path.startsWith('/assets/') || path === '/styles.css' || path === '/editorial.css' || path === '/app.js' || path === '/museum-ui.js' || path === '/features-ui.js';
   const relative = staticPath ? path.replace(/^\//,'') : 'index.html';
   const target = resolve(join(publicDir, relative));
   if (!target.startsWith(publicDir + sep)) throw new HttpError(403,'Forbidden.');

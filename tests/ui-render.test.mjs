@@ -4,8 +4,8 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 // Render helpers run without their browser bootstrap so the page HTML can be checked separately.
-const code=readFileSync(new URL('../public/app.js',import.meta.url),'utf8').split('// Link navigation and forms are handled')[0].replace(/^import [^\n]+\n/, '');
-const context=vm.createContext({createMuseumUI:()=>({account:()=>'',adminSection:()=>'',page:()=>null}),Date,URL,location:{pathname:'/exhibitions'},window:{},console,fetch(){throw new Error('Network not used in UI markup tests');}});
+const code=readFileSync(new URL('../public/app.js',import.meta.url),'utf8').split('// Link navigation and forms are handled')[0].replace(/^import [^\n]+\n/gm, '');
+const context=vm.createContext({createFeaturesUI:()=>({section:()=>'',loadedPage:()=>{},click:()=>{},submit:()=>{},input:()=>{}}),createMuseumUI:()=>({account:()=>'',adminSection:()=>'',page:()=>null}),Date,URL,location:{pathname:'/exhibitions'},window:{},console,fetch(){throw new Error('Network not used in UI markup tests');}});
 vm.runInContext(code,context);
 const evaluate=src=>vm.runInContext(src,context);
 const exhibition={id:1,slug:'echoes-in-stone',title:'Echoes in Stone',category:'ART & SCULPTURE',description:'A fictional exhibit',body:'A longer fictional story',imageKey:'stone',featured:true,likeCount:3};

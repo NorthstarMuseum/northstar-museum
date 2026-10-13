@@ -7,8 +7,8 @@ const html=readFileSync(new URL('../public/index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../public/editorial.css',import.meta.url),'utf8');
 const js=readFileSync(new URL('../public/app.js',import.meta.url),'utf8')
   .split('// Link navigation and forms are handled')[0]
-  .replace(/^import [^\n]+\n/,'');
-const ctx=vm.createContext({createMuseumUI:()=>({account:()=>'',adminSection:()=>'',page:()=>null}), Date,URL,location:{pathname:'/'},window:{},console,fetch(){throw new Error('No network expected')}});
+  .replace(/^import [^\n]+\n/gm,'');
+const ctx=vm.createContext({createFeaturesUI:()=>({section:()=>'',loadedPage:()=>{},click:()=>{},submit:()=>{},input:()=>{}}),createMuseumUI:()=>({account:()=>'',adminSection:()=>'',page:()=>null}), Date,URL,location:{pathname:'/'},window:{},console,fetch(){throw new Error('No network expected')}});
 vm.runInContext(js,ctx);
 const evaluate=code=>vm.runInContext(code,ctx);
 
@@ -35,4 +35,10 @@ test('Editorial images are bundled and the neutral design supports reduced motio
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/\.booking-panel/);
  assert.match(css,/\.museum-table/);
+});
+
+test('Additional routes are handled instead of showing Not Found',()=>{
+ assert.match(js,/path==='\/quiz'/);
+ assert.match(js,/path==='\/secret-archive'/);
+ assert.match(js,/features\.loadedPage\(path\)/);
 });

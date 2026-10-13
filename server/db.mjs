@@ -1,3 +1,4 @@
+import { featureSchema } from './features.mjs';
 import { museumSchema } from './museum.mjs';
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
@@ -94,6 +95,7 @@ export function openDatabase(filePath = process.env.DATABASE_PATH || './data/nor
     }
   }
   museumSchema(db);
+  featureSchema(db);
   return db;
 }
 

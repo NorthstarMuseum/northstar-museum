@@ -84,7 +84,7 @@ function available(db,date){
 }
 function bookingRow(db,row){return {...row,stamp:dailyStamp(row.visit_date)};}
 const reviewSelect=`SELECT r.id,r.stars,r.body,r.created_at AS createdAt,u.name AS reviewer FROM reviews r JOIN users u ON u.id=r.user_id`;
-export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLogin,requireAdmin,sendJson,HttpError}){
+export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLogin,requireAdmin,sendJson,HttpError,logAdmin}){
  const p=url.pathname;
  const reply=(status,obj)=>{sendJson(res,status,obj);return true};
  const fail=(code,message)=>{throw new HttpError(code,message)};
@@ -102,7 +102,7 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
  }
  if(method==='GET' && p==='/api/mysteries')return reply(200,{mysteries:secretList.map(([key,title,hint])=>({key,title,hint}))});
  if(method==='GET' && p==='/api/visit/availability'){
-  const date=url.searchParams.get('date')||'';const slots=available(db,date);if(!slots)fail(400,'Choose a valid date within 60 days.');return reply(200,slots);
+  const date=url.searchParams.get('date')||'';const slots=available(db,date);if(!slots)fail(400,'Choose a valid date within 60 days.');return reply(200,{...slots,stamp:dailyStamp(date)});
  }
  if(method==='GET' && p==='/api/account/museum'){
   const user=getUser();
@@ -179,6 +179,7 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
    if(row.visit_date!==museumToday())fail(409,'Check-in is only permitted on the booked visit date.');
    db.prepare("UPDATE bookings SET status='checked_in',payment_status='paid',checked_in_at=CURRENT_TIMESTAMP WHERE id=?").run(id);
    db.prepare('INSERT OR IGNORE INTO daily_stamps(user_id,stamp_date,booking_id) VALUES(?,?,?)').run(row.user_id,row.visit_date,id);
+   logAdmin(db,getAdmin().id,'check_in','booking',id);
    db.exec('COMMIT');
    return reply(200,{status:'checked_in',paymentStatus:'paid',stamp:dailyStamp(row.visit_date)});
   }catch(err){db.exec('ROLLBACK');throw err;}
@@ -189,6 +190,7 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
   const booked=db.prepare("SELECT MAX(n) AS n FROM (SELECT SUM(visitors) AS n FROM bookings WHERE visit_date=? AND status IN ('confirmed','checked_in') GROUP BY slot)").get(data.date).n||0;
   if(!data.closed&&data.capacity<booked)fail(409,'Capacity cannot be set below existing reservations.');
   db.prepare('INSERT INTO visit_schedule(visit_date,closed,capacity) VALUES(?,?,?) ON CONFLICT(visit_date) DO UPDATE SET closed=excluded.closed,capacity=excluded.capacity').run(data.date,Number(data.closed),data.capacity);
+  logAdmin(db,getAdmin().id,'update_schedule','schedule',null);
   return reply(200,available(db,data.date));
  }
  if(p==='/api/admin/museum/reviews'&&method==='GET'){
@@ -199,6 +201,7 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
   getAdmin();const id=Number(approval[1]);const row=db.prepare('SELECT id FROM reviews WHERE id=?').get(id);if(!row)fail(404,'Review not found.');
   if(approval[2]==='approve')db.prepare("UPDATE reviews SET status='approved' WHERE id=?").run(id);
   else db.prepare('DELETE FROM reviews WHERE id=?').run(id);
+  logAdmin(db,getAdmin().id,approval[2]==='approve'?'approve_review':'delete_review','review',id);
   return reply(200,{done:true});
  }
  if(p==='/api/admin/museum/stats'&&method==='GET'){
@@ -212,14 +215,16 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
   getAdmin();const d=await parseJson(req);
   if(!Number.isSafeInteger(d.exhibitionId)||!db.prepare('SELECT id FROM exhibitions WHERE id=?').get(d.exhibitionId)||typeof d.title!=='string'||d.title.trim().length<3||d.title.length>100||typeof d.summary!=='string'||d.summary.trim().length<10||d.summary.length>280||typeof d.story!=='string'||d.story.length<20||d.story.length>2400||typeof d.imageKey!=='string'||!/^[a-z-]{1,35}$/.test(d.imageKey))fail(400,'Invalid artifact details.');
   const info=db.prepare('INSERT INTO artifacts(exhibition_id,slug,title,category,summary,story,image_key,published) VALUES(?,?,?,?,?,?,?,1)').run(d.exhibitionId,'artifact-'+randomBytes(5).toString('hex'),d.title.trim(),'Curated Object',d.summary.trim(),d.story.trim(),d.imageKey);
+  logAdmin(db,getAdmin().id,'create_artifact','artifact',Number(info.lastInsertRowid));
   return reply(201,{id:Number(info.lastInsertRowid)});
  }
  const aRoute=p.match(/^\/api\/admin\/museum\/artifacts\/(\d+)$/);
  if(aRoute && ['PUT','DELETE'].includes(method)){
   getAdmin();const id=Number(aRoute[1]);if(!db.prepare('SELECT id FROM artifacts WHERE id=?').get(id))fail(404,'Artifact not found.');
-  if(method==='DELETE'){db.prepare('DELETE FROM artifacts WHERE id=?').run(id);return reply(200,{deleted:true});}
+  if(method==='DELETE'){db.prepare('DELETE FROM artifacts WHERE id=?').run(id);logAdmin(db,getAdmin().id,'delete_artifact','artifact',id);return reply(200,{deleted:true});}
   const d=await parseJson(req);if(typeof d.published!=='boolean'||typeof d.summary!=='string'||d.summary.length<10||d.summary.length>280||typeof d.story!=='string'||d.story.length<20||d.story.length>2400)fail(400,'Invalid artifact data.');
   db.prepare('UPDATE artifacts SET summary=?,story=?,published=? WHERE id=?').run(d.summary.trim(),d.story.trim(),Number(d.published),id);
+  logAdmin(db,getAdmin().id,'update_artifact','artifact',id);
   return reply(200,{updated:true});
  }
  return false;
