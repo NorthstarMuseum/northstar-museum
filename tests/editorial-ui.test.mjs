@@ -8,7 +8,7 @@ const css=readFileSync(new URL('../public/editorial.css',import.meta.url),'utf8'
 const js=readFileSync(new URL('../public/app.js',import.meta.url),'utf8')
   .split('// Link navigation and forms are handled')[0]
   .replace(/^import [^\n]+\n/gm,'');
-const ctx=vm.createContext({createFeaturesUI:()=>({section:()=>'',loadedPage:()=>{},click:()=>{},submit:()=>{},input:()=>{}}),createMuseumUI:()=>({account:()=>'',adminSection:()=>'',page:()=>null}), Date,URL,location:{pathname:'/'},window:{},console,fetch(){throw new Error('No network expected')}});
+const ctx=vm.createContext({createStudentUI:()=>({section:()=>'',loadedPage:()=>{},click:()=>{},submit:()=>{}}),createFeaturesUI:()=>({section:()=>'',loadedPage:()=>{},click:()=>{},submit:()=>{},input:()=>{}}),createMuseumUI:()=>({account:()=>'',adminSection:()=>'',page:()=>null}), Date,URL,location:{pathname:'/'},window:{},console,fetch(){throw new Error('No network expected')}});
 vm.runInContext(js,ctx);
 const evaluate=code=>vm.runInContext(code,ctx);
 

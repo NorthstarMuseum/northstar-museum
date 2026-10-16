@@ -23,7 +23,7 @@ export function validateMessage(input = {}) {
   const name = cleanText(input.name, MAX.name);
   const email = typeof input.email === 'string' ? input.email.trim() : '';
   const message = typeof input.message === 'string' ? input.message.trim() : '';
-  if (name.length < 2 || name.length > MAX.name) return 'Enter your name (2–80 characters).';
+  if (name.length < 2 || name.length > MAX.name) return 'Enter your name (2 to 80 characters).';
   if (!validEmail(email)) return 'Enter a valid email address.';
   if (message.length < 10 || message.length > MAX.body) return 'Message must be between 10 and 2500 characters.';
   return null;
@@ -37,10 +37,10 @@ export function validateExhibition(input = {}) {
   const category = cleanText(input.category, 45);
   const description = cleanText(input.description, MAX.description);
   const body = typeof input.body === 'string' ? input.body.trim() : '';
-  if (title.length < 3 || title.length > MAX.title) return 'Title must be 3–110 characters.';
-  if (category.length < 2 || category.length > 45) return 'Category must be 2–45 characters.';
-  if (description.length < 12 || description.length > MAX.description) return 'Description must be 12–280 characters.';
-  if (body.length < 30 || body.length > 4000) return 'Story must be 30–4000 characters.';
+  if (title.length < 3 || title.length > MAX.title) return 'Title must be 3 to 110 characters.';
+  if (category.length < 2 || category.length > 45) return 'Category must be 2 to 45 characters.';
+  if (description.length < 12 || description.length > MAX.description) return 'Description must be 12 to 280 characters.';
+  if (body.length < 30 || body.length > 4000) return 'Story must be 30 to 4000 characters.';
   if (!IMAGE_KEYS.includes(input.imageKey)) return 'Choose a valid collection image.';
   if (typeof input.published !== 'boolean' || typeof input.featured !== 'boolean') return 'Invalid publication setting.';
   return null;
@@ -49,8 +49,8 @@ export function validateExhibition(input = {}) {
 export function validateEvent(input = {}) {
   const title = cleanText(input?.title, MAX.title);
   const description = cleanText(input?.description, MAX.description);
-  if (title.length < 3 || title.length > MAX.title) return 'Title must be 3–110 characters.';
-  if (description.length < 12 || description.length > MAX.description) return 'Description must be 12–280 characters.';
+  if (title.length < 3 || title.length > MAX.title) return 'Title must be 3 to 110 characters.';
+  if (description.length < 12 || description.length > MAX.description) return 'Description must be 12 to 280 characters.';
   if (typeof input?.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(input.date) || Number.isNaN(Date.parse(input.date + 'T12:00:00Z')) || new Date(input.date + 'T12:00:00Z').toISOString().slice(0,10) !== input.date) return 'Enter a valid event date (YYYY-MM-DD).';
   if (typeof input?.time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(input.time)) return 'Enter an event time (HH:MM).';
   if (typeof input?.published !== 'boolean') return 'Invalid publication setting.';

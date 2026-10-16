@@ -1,8 +1,8 @@
 {
   "name": "northstar-museum",
-  "version": "2.2.0",
+  "version": "2.4.3",
   "private": true,
-  "description": "Northstar \u2014 a fictional museum website and collection catalogue",
+  "description": "Northstar Museum: a fictional museum website and collection catalogue",
   "type": "module",
   "engines": {
     "node": ">=22.13.0"
@@ -11,6 +11,13 @@
     "start": "node server/index.mjs",
     "dev": "node --watch server/index.mjs",
     "test": "node --test tests/*.test.mjs",
-    "admin": "node scripts/create-admin.mjs"
+    "admin": "node scripts/create-admin.mjs",
+    "dev:express": "node --watch server/express-server.mjs",
+    "start:express": "node server/express-server.mjs",
+    "demo": "node server/demo-server.mjs",
+    "demo:prepare": "node scripts/prepare-demo.mjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
   }
 }

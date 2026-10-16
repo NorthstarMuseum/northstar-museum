@@ -1,3 +1,4 @@
+import { handleStudentApi } from './student.mjs';
 import { handleFeatureApi, logAdmin } from './features.mjs';
 import { handleMuseumApi } from './museum.mjs';
 import { createServer as makeHttpServer } from 'node:http';
@@ -84,6 +85,7 @@ function uniqueSlug(db, title) {
 async function handleApi(req, res, url, db) {
   const path = url.pathname;
   const method = req.method;
+  if (await handleStudentApi({db,req,res,url,method,parseJson,requireLogin,sendJson,HttpError})) return;
   if (await handleFeatureApi({db,req,res,url,method,parseJson,requireLogin,requireAdmin,sendJson,clearSessionCookie,isSecure,HttpError,limitAccountAction})) return;
   if (await handleMuseumApi({db,req,res,url,method,parseJson,requireLogin,requireAdmin,sendJson,HttpError,logAdmin})) return;
   if (method === 'GET' && path === '/api/health') return sendJson(res, 200, { status:'ok' });
@@ -266,7 +268,9 @@ async function handleApi(req, res, url, db) {
 async function handleStatic(req, res, url) {
   if (req.method !== 'GET' && req.method !== 'HEAD') throw new HttpError(405,'Method not allowed.');
   const path = decodeURIComponent(url.pathname);
-  const staticPath = path === '/favicon.svg' || path.startsWith('/assets/') || path === '/styles.css' || path === '/editorial.css' || path === '/app.js' || path === '/museum-ui.js' || path === '/features-ui.js';
+  const staticPath = path === '/favicon.svg' || path.startsWith('/assets/') || path === '/styles.css' || path === '/editorial.css' || path === '/app.js' || path === '/museum-ui.js' || path === '/features-ui.js' || path === '/student-ui.js' || path === '/startup.js';
+  // A missing script should return 404, not the HTML shell (browsers reject its MIME type).
+  if (!staticPath && /\.(?:js|css)$/.test(path)) throw new HttpError(404,'Static asset not found.');
   const relative = staticPath ? path.replace(/^\//,'') : 'index.html';
   const target = resolve(join(publicDir, relative));
   if (!target.startsWith(publicDir + sep)) throw new HttpError(403,'Forbidden.');
@@ -274,12 +278,12 @@ async function handleStatic(req, res, url) {
   let body;
   try { body = await readFile(target); }
   catch { throw new HttpError(404,'File not found.'); }
-  res.writeHead(200, {'Content-Type':mime[extname(target)] || 'text/html; charset=utf-8', 'Cache-Control':staticPath ? 'public, max-age=3600' : 'no-cache'});
+  res.writeHead(200, {'Content-Type':mime[extname(target)] || 'text/html; charset=utf-8', 'Cache-Control': staticPath && !/\.(js|css)$/.test(target) ? 'public, max-age=3600' : 'no-store'});
   res.end(req.method === 'HEAD' ? undefined : body);
 }
 
-export function createServer({ db = openDatabase() } = {}) {
-  return makeHttpServer(async (req,res) => {
+export function createRequestHandler({ db = openDatabase() } = {}) {
+  return async (req,res) => {
     res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('X-Frame-Options','DENY');
     res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
@@ -295,5 +299,9 @@ export function createServer({ db = openDatabase() } = {}) {
       if (status === 500) console.error('Request failed:',error);
       sendJson(res,status,{ error:status === 500 ? 'Unexpected server error.' : error.message });
     }
-  });
+  };
+}
+
+export function createServer({ db = openDatabase() } = {}) {
+  return makeHttpServer(createRequestHandler({db}));
 }

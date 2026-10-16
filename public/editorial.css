@@ -276,3 +276,52 @@ h1,h2{letter-spacing:-.045em}
  .feature-collection,.feature-danger{padding:16px}
  .quiz-question{padding:14px}
 }
+
+/* Sprint 3: visitor information, tickets, responsive event search, keyboard use */
+.ticket-fieldset{margin:1rem 0 1.5rem;border:1px solid #cbd3de;border-radius:4px;padding:1rem}
+.ticket-fieldset legend{font-weight:700;padding:0 .35rem;color:#17283f}
+.ticket-count{width:100%;margin-top:.4rem;min-height:44px}
+.ticket-estimate{font-weight:700;margin-top:1rem;color:#16283f}
+.visitor-facts{display:grid;grid-template-columns:1fr;gap:.25rem;margin:1.25rem 0}
+.visitor-facts dt{font-weight:700;margin-top:.65rem;color:#1b3049}
+.visitor-facts dd{margin:0;color:#344256;line-height:1.5}
+.event-toolbar{margin-bottom:1rem}
+.event-detail{max-width:780px}
+:where(a,button,input,textarea,select):focus-visible{outline:3px solid #205e9e!important;outline-offset:3px}
+@media(max-width:660px){.ticket-fieldset .booking-form-grid,.event-toolbar{display:grid;grid-template-columns:1fr;gap:.8rem}.booking-side{margin-top:1rem}.museum-booking-card{overflow-wrap:anywhere}}
+@media print {body.printing-ticket *{visibility:hidden!important}body.printing-ticket .print-target,body.printing-ticket .print-target *{visibility:visible!important}body.printing-ticket .print-target{position:absolute!important;left:0;top:0;width:95%;padding:2rem;border:1px solid #333;background:white!important;color:#111!important}body.printing-ticket .print-target button{display:none!important}}
+
+.admin-booking-filters{display:flex;flex-wrap:wrap;align-items:end;gap:1rem;margin:1rem 0}
+.admin-booking-filters label{display:grid;gap:.35rem;font-weight:600}
+.admin-booking-filters input,.admin-booking-filters select{min-height:44px;max-width:100%;padding:.55rem;border:1px solid #c2cbd8;background:white}
+.admin-booking-filters [role=status]{margin:0 0 .75rem}
+tr[hidden]{display:none!important}
+
+
+/* v2.4 fictional student activities */
+.student-link-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.student-link-card{display:flex;flex-direction:column;gap:10px;background:white;border:1px solid var(--line);padding:26px;text-decoration:none;color:var(--deep);min-height:145px}
+.student-link-card strong{font-family:var(--serif);font-size:25px;font-weight:500}
+.student-link-card span{font-size:14px;line-height:1.6;color:var(--sub)}
+.student-compare-form{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:15px;padding:22px;background:#f6f7f9;border:1px solid var(--line);margin:25px 0}
+.student-compare-form label,.student-editor>label{display:grid;gap:8px;font-size:14px;font-weight:600}
+.student-compare-form select,.student-editor input,.student-editor textarea{width:100%;min-width:0;padding:12px;background:#fff;border:1px solid #aebac9;min-height:45px;font:inherit}
+.student-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:22px}
+.student-artifact{background:#fff;border:1px solid var(--line);min-width:0}
+.student-artifact img{width:100%;height:290px;object-fit:cover;display:block}
+.student-artifact>div{padding:25px}.student-artifact h3{margin:9px 0;font-size:29px}.student-artifact p{color:var(--sub);line-height:1.75}
+.student-timeline{border-left:2px solid #b9c6d6;margin:35px 0 0 25px}
+.student-era{display:grid;grid-template-columns:110px 1fr;gap:20px;padding:0 0 45px 30px;position:relative}
+.student-era:before{content:'';position:absolute;left:-8px;top:8px;width:14px;height:14px;border:2px solid #243a56;border-radius:50%;background:#fff}
+.student-year{font-size:24px;font-family:var(--serif);color:var(--deep)}.student-era h2{font-size:27px;margin:0 0 12px}.student-era p{color:var(--sub)}
+.student-editor{display:grid;gap:20px;background:#f6f7f9;border:1px solid var(--line);padding:27px;margin:26px 0 40px}
+.student-editor h2{margin:0}.student-editor fieldset{padding:15px;border:1px solid #c0cbd7;background:#fff}.student-editor legend{font-weight:600;padding:0 8px}
+.student-check-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 18px}
+.student-check{display:flex;align-items:center;gap:9px;padding:7px;font-size:14px;font-weight:400;min-width:0}.student-check input{width:17px;height:17px;min-height:0;flex:0 0 auto;accent-color:#172942}
+.student-mini{padding:23px;border:1px solid var(--line);background:#fff;margin:18px 0}
+.student-mini-head{display:flex;justify-content:space-between;gap:20px;align-items:start}.student-mini-head h3{font-size:28px;margin:8px 0}
+.student-mini-head p{max-width:650px;color:var(--sub)}.student-mini-items{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.student-mini-items a{font-size:12px;line-height:1.4;color:var(--deep);text-decoration:none}
+.student-mini-items img{display:block;width:100%;aspect-ratio:1;object-fit:cover;margin-bottom:8px}
+@media(max-width:850px){.student-compare-form{grid-template-columns:1fr}.student-link-grid,.student-check-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-mini-items{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.student-link-grid,.student-check-grid,.student-compare-grid{grid-template-columns:1fr}.student-era{grid-template-columns:1fr;gap:5px;padding-left:21px}.student-timeline{margin-left:10px}.student-mini-head{display:block}.student-mini-items{grid-template-columns:repeat(2,minmax(0,1fr))}.student-artifact img{height:245px}.student-editor{padding:17px}}

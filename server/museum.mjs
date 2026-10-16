@@ -1,4 +1,5 @@
 import { randomBytes, createHash } from 'node:crypto';
+import { ticketQuote, TICKET_PRICES } from './tickets.mjs';
 
 const slots=['10:00','11:30','13:00','14:30','16:00'];
 const secretList=[
@@ -66,6 +67,13 @@ export function museumSchema(db){
  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved')),
  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(user_id,artifact_id));
  `);
+ // Upgrade databases made by earlier Northstar versions without losing reservations.
+ const columns=db.prepare('PRAGMA table_info(bookings)').all().map(row=>row.name);
+ if(!columns.includes('ticket_breakdown'))db.exec("ALTER TABLE bookings ADD COLUMN ticket_breakdown TEXT NOT NULL DEFAULT '{}'");
+ if(!columns.includes('total_cents'))db.exec('ALTER TABLE bookings ADD COLUMN total_cents INTEGER NOT NULL DEFAULT 0');
+ const legacy=db.prepare("SELECT id,visitors FROM bookings WHERE ticket_breakdown='{}'").all();
+ const migrate=db.prepare('UPDATE bookings SET ticket_breakdown=?,total_cents=? WHERE id=?');
+ for(const row of legacy)migrate.run(JSON.stringify({adult:row.visitors,student:0,child:0}),row.visitors*TICKET_PRICES.adult,row.id);
  if(!db.prepare('SELECT id FROM artifacts LIMIT 1').get()){
   const rows=db.prepare('SELECT id FROM exhibitions ORDER BY id').all();
   const insert=db.prepare('INSERT INTO artifacts(exhibition_id,slug,title,category,summary,story,image_key,secret_key) VALUES(?,?,?,?,?,?,?,?)');
@@ -82,7 +90,7 @@ function available(db,date){
  return {time,remaining:closed?0:Math.max(0,(schedule?.capacity ?? 18)-count)};
  })};
 }
-function bookingRow(db,row){return {...row,stamp:dailyStamp(row.visit_date)};}
+function bookingRow(db,row){const {ticket_breakdown,total_cents,...rest}=row;return {...rest,tickets:JSON.parse(ticket_breakdown??'{}'),totalCents:total_cents??0,currency:'CAD',stamp:dailyStamp(row.date??row.visit_date)};}
 const reviewSelect=`SELECT r.id,r.stars,r.body,r.created_at AS createdAt,u.name AS reviewer FROM reviews r JOIN users u ON u.id=r.user_id`;
 export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLogin,requireAdmin,sendJson,HttpError,logAdmin}){
  const p=url.pathname;
@@ -101,15 +109,16 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
   return reply(200,{artifact:{...row,secretKey:row.secret_key},reviews});
  }
  if(method==='GET' && p==='/api/mysteries')return reply(200,{mysteries:secretList.map(([key,title,hint])=>({key,title,hint}))});
+ if(method==='GET' && p==='/api/visit/prices')return reply(200,{prices:TICKET_PRICES,currency:'CAD',note:'Fictional demonstration rates. Pay at the museum entrance.'});
  if(method==='GET' && p==='/api/visit/availability'){
-  const date=url.searchParams.get('date')||'';const slots=available(db,date);if(!slots)fail(400,'Choose a valid date within 60 days.');return reply(200,{...slots,stamp:dailyStamp(date)});
+  const date=url.searchParams.get('date')||'';const slots=available(db,date);if(!slots)fail(400,'Choose a valid date within 60 days.');return reply(200,{...slots,stamp:dailyStamp(date),ticketPrices:TICKET_PRICES,currency:'CAD'});
  }
  if(method==='GET' && p==='/api/account/museum'){
   const user=getUser();
   const liked=db.prepare(`SELECT a.* FROM liked_artifacts l JOIN artifacts a ON a.id=l.artifact_id WHERE l.user_id=? AND a.published=1 ORDER BY a.id DESC`).all(user.id);
   const saved=db.prepare(`SELECT a.* FROM saved_artifacts l JOIN artifacts a ON a.id=l.artifact_id WHERE l.user_id=? AND a.published=1 ORDER BY a.id DESC`).all(user.id);
   const discoveries=db.prepare('SELECT secret_key AS key,discovered_at AS discoveredAt FROM discoveries WHERE user_id=? ORDER BY discovered_at DESC').all(user.id);
-  const bookings=db.prepare(`SELECT id,code,visit_date AS date,slot AS time,visitors,status,payment_status AS paymentStatus,created_at AS createdAt,checked_in_at AS checkedInAt FROM bookings WHERE user_id=? ORDER BY visit_date DESC,slot DESC`).all(user.id).map(b=>bookingRow(db,b));
+  const bookings=db.prepare(`SELECT id,code,visit_date AS date,slot AS time,visitors,ticket_breakdown,total_cents,status,payment_status AS paymentStatus,created_at AS createdAt,checked_in_at AS checkedInAt FROM bookings WHERE user_id=? ORDER BY visit_date DESC,slot DESC`).all(user.id).map(b=>bookingRow(db,b));
   const stamps=db.prepare('SELECT stamp_date AS date,earned_at AS earnedAt FROM daily_stamps WHERE user_id=? ORDER BY stamp_date DESC').all(user.id).map(s=>({...s,stamp:dailyStamp(s.date)}));
   const count=stamps.length;
   const badges=[1,5,10,25,50].filter(n=>count>=n).map(n=>({visits:n,name:({1:'First Explorer',5:'Museum Enthusiast',10:'Star Collector',25:'Northstar Legend',50:'Northstar Master'})[n]}));
@@ -132,8 +141,13 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
   return reply(added?201:200,{discovered:true,added:Boolean(added),completed:db.prepare('SELECT COUNT(*) AS n FROM discoveries WHERE user_id=?').get(user.id).n});
  }
  if(p==='/api/account/bookings' && method==='POST'){
-  const user=getUser(),data=await parseJson(req),date=data.date,time=data.time,visitors=data.visitors;
-  if(typeof date!=='string'||!slots.includes(time)||!Number.isInteger(visitors)||visitors<1||visitors>5)fail(400,'Choose a valid date, time and 1–5 visitors.');
+  const user=getUser(),data=await parseJson(req),date=data.date,time=data.time;
+  let quote;
+  try{quote=ticketQuote(data.tickets??{adult:data.visitors,student:0,child:0});}
+  catch{fail(400,'Choose 1 to 5 valid tickets.');}
+  const {tickets,visitors,totalCents,currency}=quote;
+  if(data.visitors!==undefined&&data.visitors!==visitors)fail(400,'Visitor count does not match ticket quantities.');
+  if(typeof date!=='string'||!slots.includes(time))fail(400,'Choose a valid date and time.');
   const entry=available(db,date);if(!entry)fail(400,'Bookings must be within the next 60 days.');
   if(entry.closed)fail(409,'Museum closed on this date.');
   // SQLite write lock is held through the capacity check and insert.
@@ -142,9 +156,9 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
    const fresh=available(db,date);
    if(fresh.slots.find(s=>s.time===time).remaining<visitors)fail(409,'Not enough places remain for this time.');
    const code='NS-'+date.replaceAll('-','')+'-'+randomBytes(4).toString('hex').toUpperCase();
-   const info=db.prepare('INSERT INTO bookings(user_id,code,visit_date,slot,visitors) VALUES(?,?,?,?,?)').run(user.id,code,date,time,visitors);
+   const info=db.prepare('INSERT INTO bookings(user_id,code,visit_date,slot,visitors,ticket_breakdown,total_cents) VALUES(?,?,?,?,?,?,?)').run(user.id,code,date,time,visitors,JSON.stringify(tickets),totalCents);
    db.exec('COMMIT');
-   return reply(201,{booking:{id:Number(info.lastInsertRowid),code,date,time,visitors,status:'confirmed',paymentStatus:'unpaid',stamp:dailyStamp(date)}});
+   return reply(201,{booking:{id:Number(info.lastInsertRowid),code,date,time,visitors,tickets,totalCents,currency,status:'confirmed',paymentStatus:'unpaid',stamp:dailyStamp(date)}});
   }catch(err){db.exec('ROLLBACK');throw err;}
  }
  const cancel=p.match(/^\/api\/account\/bookings\/(\d+)\/cancel$/);
@@ -160,12 +174,12 @@ export async function handleMuseumApi({db,req,res,url,method,parseJson,requireLo
  if(review&&method==='POST'){
   const user=getUser(),id=Number(review[1]),data=await parseJson(req);
   if(!db.prepare('SELECT id FROM artifacts WHERE id=? AND published=1').get(id))fail(404,'Artifact not found.');
-  if(!Number.isInteger(data.stars)||data.stars<1||data.stars>5||typeof data.body!=='string'||data.body.length>600)fail(400,'Choose 1–5 stars and a review of at most 600 characters.');
+  if(!Number.isInteger(data.stars)||data.stars<1||data.stars>5||typeof data.body!=='string'||data.body.length>600)fail(400,'Choose 1 to 5 stars and a review of at most 600 characters.');
   db.prepare(`INSERT INTO reviews(user_id,artifact_id,stars,body,status) VALUES(?,?,?,?,'pending') ON CONFLICT(user_id,artifact_id) DO UPDATE SET stars=excluded.stars,body=excluded.body,status='pending'`).run(user.id,id,data.stars,data.body.trim());
   return reply(201,{message:'Your review is awaiting moderation.'});
  }
  if(p==='/api/admin/museum/bookings'&&method==='GET'){
-  getAdmin();const rows=db.prepare(`SELECT b.id,b.code,b.visit_date AS date,b.slot AS time,b.visitors,b.status,b.payment_status AS paymentStatus,u.name,u.email FROM bookings b JOIN users u ON u.id=b.user_id ORDER BY b.visit_date DESC,b.slot DESC LIMIT 300`).all();return reply(200,{bookings:rows});
+  getAdmin();const rows=db.prepare(`SELECT b.id,b.code,b.visit_date AS date,b.slot AS time,b.visitors,b.ticket_breakdown,b.total_cents,b.status,b.payment_status AS paymentStatus,u.name,u.email FROM bookings b JOIN users u ON u.id=b.user_id ORDER BY b.visit_date DESC,b.slot DESC LIMIT 300`).all().map(({ticket_breakdown,total_cents,...row})=>({...row,tickets:JSON.parse(ticket_breakdown),totalCents:total_cents,currency:'CAD'}));return reply(200,{bookings:rows});
  }
  const checkin=p.match(/^\/api\/admin\/museum\/bookings\/(\d+)\/check-in$/);
  if(checkin&&method==='POST'){

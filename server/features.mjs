@@ -1,3 +1,4 @@
+import { ownMiniExhibitions } from './student.mjs';
 import { verifyPassword } from './auth.mjs';
 import { museumToday } from './museum.mjs';
 
@@ -61,13 +62,14 @@ function exportedData(db,user){
   savedArtifacts:'SELECT artifact_id AS artifactId FROM saved_artifacts WHERE user_id=?',
   likedArtifacts:'SELECT artifact_id AS artifactId FROM liked_artifacts WHERE user_id=?',
   discoveries:'SELECT secret_key AS secret,discovered_at AS discoveredAt FROM discoveries WHERE user_id=?',
-  bookings:'SELECT code,visit_date AS date,slot AS time,visitors,status,payment_status AS paymentStatus,created_at AS createdAt FROM bookings WHERE user_id=?',
+  bookings:'SELECT code,visit_date AS date,slot AS time,visitors,ticket_breakdown AS tickets,total_cents AS totalCents,status,payment_status AS paymentStatus,created_at AS createdAt FROM bookings WHERE user_id=?',
   stamps:'SELECT stamp_date AS date,earned_at AS earnedAt FROM daily_stamps WHERE user_id=?',
   reviews:'SELECT artifact_id AS artifactId,stars,body,status,created_at AS createdAt FROM reviews WHERE user_id=?',
   quizAttempts:'SELECT score,created_at AS createdAt FROM quiz_attempts WHERE user_id=?'
  };
- const data={exportedAt:new Date().toISOString(),profile:{id:user.id,name:user.name,email:user.email,role:user.role},collections:ownCollections(db,user.id)};
+ const data={exportedAt:new Date().toISOString(),profile:{id:user.id,name:user.name,email:user.email,role:user.role},collections:ownCollections(db,user.id),miniExhibitions:ownMiniExhibitions(db,user.id)};
  for(const [key,sql] of Object.entries(statements))data[key]=db.prepare(sql).all(user.id);
+ data.bookings=data.bookings.map(row=>({...row,tickets:JSON.parse(row.tickets??'{}'),currency:'CAD'}));
  return data;
 }
 
@@ -100,13 +102,13 @@ export async function handleFeatureApi({db,req,res,url,method,parseJson,requireL
   const who=user();
   const found=db.prepare(`SELECT COUNT(*) AS n FROM discoveries WHERE user_id=? AND secret_key IN (${validSecrets.map(()=>'?').join(',')})`).get(who.id,...validSecrets).n;
   if(found!==7)fail(403,`Find all seven mysteries to enter the Secret Archive. Progress: ${found}/7.`);
-  return reply(200,{title:'The Curator’s Last Letter',year:1894,reward:'Keeper of the Northstar Archive',letter:'To the next keeper of Northstar,\n\nI did not disappear. I followed seven objects through seven stories, and I discovered that no single object held the answer. The true archive is the curiosity of those who visit.\n\nIf you have found every clue, you are ready to become its next keeper. Keep asking questions, and the museum will never close its doors to wonder.\n\n— The First Curator, 1894'});
+  return reply(200,{title:'The Curator’s Last Letter',year:1894,reward:'Keeper of the Northstar Archive',letter:'To the next keeper of Northstar,\n\nI did not disappear. I followed seven objects through seven stories, and I discovered that no single object held the answer. The true archive is the curiosity of those who visit.\n\nIf you have found every clue, you are ready to become its next keeper. Keep asking questions, and the museum will never close its doors to wonder.\n\nThe First Curator, 1894'});
  }
  if(p==='/api/account/collections'&&method==='GET')return reply(200,{collections:ownCollections(db,user().id)});
  if(p==='/api/account/collections'&&method==='POST'){
   const who=user(),body=await parseJson(req);
   const name=typeof body.name==='string'?body.name.trim():'';
-  if(name.length<2||name.length>60)fail(400,'Collection name must be 2–60 characters.');
+  if(name.length<2||name.length>60)fail(400,'Collection name must be 2 to 60 characters.');
   if(db.prepare('SELECT COUNT(*) AS n FROM member_collections WHERE user_id=?').get(who.id).n>=25)fail(409,'You can have up to 25 collections.');
   const out=db.prepare('INSERT INTO member_collections(user_id,name) VALUES(?,?)').run(who.id,name);
   return reply(201,{id:Number(out.lastInsertRowid),name});
@@ -117,7 +119,7 @@ export async function handleFeatureApi({db,req,res,url,method,parseJson,requireL
   if(!db.prepare('SELECT id FROM member_collections WHERE id=? AND user_id=?').get(id,who.id))fail(404,'Collection not found.');
   if(method==='DELETE'){db.prepare('DELETE FROM member_collections WHERE id=? AND user_id=?').run(id,who.id);return reply(200,{deleted:true});}
   const body=await parseJson(req),name=typeof body.name==='string'?body.name.trim():'';
-  if(name.length<2||name.length>60)fail(400,'Collection name must be 2–60 characters.');
+  if(name.length<2||name.length>60)fail(400,'Collection name must be 2 to 60 characters.');
   db.prepare('UPDATE member_collections SET name=? WHERE id=? AND user_id=?').run(name,id,who.id);
   return reply(200,{updated:true});
  }
