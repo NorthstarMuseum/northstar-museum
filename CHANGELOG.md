@@ -33,5 +33,4 @@ Removed long dash punctuation from website text and documentation. All existing 
 - Continued to preserve account deletion confirmation, private collections, quiz, hidden mysteries and admin activity logs from v2.2.
 
 ## Verification
-
-See `docs/QA_RELEASE_CHECKLIST.md`. Test outcomes must come from actual `npm test` runs; visual and Express validation must be done separately.
+Test outcomes must come from actual `npm test` runs; visual and Express validation must be done separately.
